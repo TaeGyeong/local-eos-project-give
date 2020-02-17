@@ -9,7 +9,8 @@ class Login extends Component {
                 username: '',
                 key: '',
                 error: ''
-            }
+            },
+            loginHandler: this.props.onLoginSuccess
         }
     }
 
@@ -31,16 +32,12 @@ class Login extends Component {
         })
         .then(() => {
             alert("login success")
+            this.state.loginHandler(this.state.form.username)
         })
         .catch(err => {
             this.setState({ error: err.toString() });
             alert(err)
         })
-        // .finally(() => {
-        //     if (this.isComponentMounted) {
-        //         this.setState({ isSigningIn: false });
-        //     }
-        // });
     }
     render() {
         return (

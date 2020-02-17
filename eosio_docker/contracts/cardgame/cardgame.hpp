@@ -4,17 +4,16 @@ using namespace std;
 using namespace eosio;
 class [[eosio::contract]] cardgame : public eosio::contract {
   private:
-    struct [[eosio::table]] receive_user {
+    struct [[eosio::table]] give_user {
       name        username;
-      uinit16_t   target_amount=1000;
-      uinit16_t   current_amount=0;
+      uint32_t   current_amount=1000000;
 
       auto primary_key() const { return username.value; }
     };
 
-    typedef eosio::multi_index<name("users"), receive_user> users_table;
+    typedef eosio::multi_index<name("users"), give_user> give_users_table;
 
-    users_table _users;
+    give_users_table _users;
 
   public:
 
