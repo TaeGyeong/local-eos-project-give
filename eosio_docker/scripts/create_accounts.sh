@@ -20,7 +20,7 @@ mkdir -p ~/bin && curl -sSL -o ~/bin/jq https://github.com/stedolan/jq/releases/
 # NEVER store the private key in any source code in your real life developmemnt
 # This is just for demo purpose
 
-jq -c '.[]' accounts.json | while read i; do
+jq -c '.[]' $1 | while read i; do
   name=$(jq -r '.name' <<< "$i")
   pub=$(jq -r '.publicKey' <<< "$i")
 

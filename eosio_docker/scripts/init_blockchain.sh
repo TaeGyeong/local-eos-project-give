@@ -51,12 +51,18 @@ echo "=== deploy smart contract ==="
 # $2 account holder name of the smart contract
 # $3 wallet for unlock the account
 # $4 password for unlocking the wallet
-deploy_contract.sh cardgame cardgameacc cardgamewal $(cat cardgame_wallet_password.txt)
+# deploy_contract.sh cardgame cardgameacc cardgamewal $(cat cardgame_wallet_password.txt)
 
 echo "=== create user accounts ==="
 # script for create data into blockchain
-create_accounts.sh
+# create_accounts.sh
+###############################################################################################
+deploy_contract.sh giveuser cardgameacc cardgamewal $(cat cardgame_wallet_password.txt)
+create_accounts.sh accounts.json
 
+deploy_contract.sh receiveuser cardgameacc cardgamewal $(cat cardgame_wallet_password.txt)
+create_accounts.sh accounts2.json
+###############################################################################################
 echo "=== end of setup blockchain accounts and smart contract ==="
 # create a file to indicate the blockchain has been initialized
 touch "/mnt/dev/data/initialized"
