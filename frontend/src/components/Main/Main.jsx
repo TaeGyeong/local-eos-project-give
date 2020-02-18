@@ -14,7 +14,7 @@ class Main extends Component {
     }
 
     componentDidMount() {
-        this.userInfoHandler(this.props.username, "give")
+        this.userInfoHandler(this.props.username, this.props.type)
     }
 
     userInfoHandler = (username, tablename) => {

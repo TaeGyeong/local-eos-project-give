@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 import Login from '../Login'
 import Main from '../Main'
+import ApiService from '../services'
 
 class App extends Component {
   constructor(props) {
@@ -9,13 +10,19 @@ class App extends Component {
     this.state={
       appStatus:'Login',
       username:'',
+      type:'',
     }
   }
+
+  componentDidMount() {
+    
+  }
   render() {
-    const handleLogined = (username) => {
+    const handleLogined = (username, type) => {
       this.setState({
         appStatus:'Main',
-        username:username
+        username:username,
+        type:type,
       })
     }
     return (
@@ -31,6 +38,7 @@ class App extends Component {
           ?
           <Main 
             username={this.state.username}
+            type={this.state.type}
           />
           :
           <div></div>

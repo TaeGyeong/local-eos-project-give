@@ -8,7 +8,8 @@ class Login extends Component {
             form: {
                 username: '',
                 key: '',
-                error: ''
+                error: '',
+                type: ''
             },
             loginHandler: this.props.onLoginSuccess
         }
@@ -26,13 +27,15 @@ class Login extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault()
+        alert(this.state.form.type)
         return ApiService.login({
             username: this.state.form.username,
-            key: this.state.form.key
+            key: this.state.form.key,
+            type: this.state.form.type
         })
         .then(() => {
             alert("login success")
-            this.state.loginHandler(this.state.form.username)
+            this.state.loginHandler(this.state.form.username, this.state.form.type)
         })
         .catch(err => {
             this.setState({ error: err.toString() });
@@ -66,6 +69,22 @@ class Login extends Component {
                             pattern="^.{51,}$"
                             required
                             autoComplete="new-password"
+                        />
+                    </div>
+                    <div className="radiobutton">
+                        <label>give</label>
+                        <input
+                            type="radio"
+                            name="type"
+                            onChange={this.handleChange}
+                            value="give"
+                        />
+                        <label>receive</label>
+                        <input
+                            type="radio"
+                            name="type"
+                            onChange={this.handleChange}
+                            value="receive"
                         />
                     </div>
                     <div className="field form-error">
