@@ -6,7 +6,6 @@ class [[eosio::contract]] giveuser : public eosio::contract {
   private:
     struct [[eosio::table]] give_user {
       name        username;
-      string      type = "give";
       uint32_t    current_amount=1000000;
 
       auto primary_key() const { return username.value; }
@@ -23,4 +22,10 @@ class [[eosio::contract]] giveuser : public eosio::contract {
 
     [[eosio::action]]
     void login(name username);
+
+    [[eosio::action]]
+    void registering(name username);
+
+    [[eosio::action]]
+    void give(name username, uint32_t amount);
 };

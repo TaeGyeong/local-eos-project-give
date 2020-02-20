@@ -26,4 +26,5 @@ jq -c '.[]' $1 | while read i; do
 
   # to simplify, we use the same key for owner and active key of each account
   cleos create account eosio $name $pub $pub
+  # cleos push action $2 registering '{"username":"'$name'"}'
 done

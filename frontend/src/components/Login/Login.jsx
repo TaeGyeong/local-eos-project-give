@@ -11,7 +11,8 @@ class Login extends Component {
                 error: '',
                 type: ''
             },
-            loginHandler: this.props.onLoginSuccess
+            loginHandler: this.props.onLoginSuccess,
+            registHandler: this.props.onRegisterPage
         }
     }
 
@@ -27,7 +28,6 @@ class Login extends Component {
 
     handleSubmit = (event) => {
         event.preventDefault()
-        alert(this.state.form.type)
         return ApiService.login({
             username: this.state.form.username,
             key: this.state.form.key,
@@ -35,7 +35,7 @@ class Login extends Component {
         })
         .then(() => {
             alert("login success")
-            this.state.loginHandler(this.state.form.username, this.state.form.type)
+            this.state.loginHandler(this.state.form.type)
         })
         .catch(err => {
             this.setState({ error: err.toString() });
@@ -94,6 +94,7 @@ class Login extends Component {
                         <button type="submit" className="green">
                             Login
                         </button>
+                        <button onClick={this.state.registHandler}>회원가입</button>
                     </div>
                 </form>
             </div>
