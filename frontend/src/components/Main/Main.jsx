@@ -8,7 +8,7 @@ class Userlist extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            content:[]
+            content:[],
         }
     }
 
@@ -22,13 +22,12 @@ class Userlist extends Component {
             .catch(err => {
                 console.log(err)
             })
-        console.log("handleState complete")
     }
-    
+
     render() {
         return(
             <div>
-                <GiveUser/> 
+                <GiveUser />
                 {
                     this.state.content.map((val, idx) => {
                         return (

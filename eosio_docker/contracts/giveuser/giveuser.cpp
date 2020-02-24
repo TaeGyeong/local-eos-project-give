@@ -4,11 +4,6 @@ void giveuser::login(name username) {
     require_auth(username);
     auto user_iterator = _users.find(username.value);
     check(user_iterator != _users.end(), "Login Fail");
-    // if (user_iterator == _users.end()) {
-    //     user_iterator = _users.emplace(username,  [&](auto& new_user) {
-    //         new_user.username = username;
-    //     });
-    // }
 }
 
 void giveuser::registering(name username) {

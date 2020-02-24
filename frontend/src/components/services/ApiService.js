@@ -2,6 +2,89 @@
 import { Api, JsonRpc } from 'eosjs';
 import { JsSignatureProvider } from 'eosjs/dist/eosjs-jssig'
 
+async function giveCurrency(from, to, amount) {
+    const privateKey = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3";
+    const rpc = new JsonRpc(process.env.REACT_APP_EOS_HTTP_ENDPOINT);
+    const signatureProvider = new JsSignatureProvider([privateKey]);
+    const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
+    // Main call to blockchain after setting action, account_name and data
+    try {
+        const resultWithConfig = await api.transact({
+            actions: [{
+                account: 'eosio.token',
+                name: 'transfer',
+                authorization: [{
+                    actor: `${from}tok`,
+                    permission: 'active',
+                }],
+                data: {
+                    from: `${from}tok`,
+                    to: `${to}tok`,
+                    quantity: `${amount} SYS`,
+                    memo: 'm'
+                }
+            }]
+        }, {
+            blocksBehind: 3,
+            expireSeconds: 30,
+        });
+        return resultWithConfig;
+    } catch (err) {
+        throw (err)
+    }
+}
+
+
+async function issueCurrency(username, amount) {
+    const privateKey = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3";
+    const rpc = new JsonRpc(process.env.REACT_APP_EOS_HTTP_ENDPOINT);
+    const signatureProvider = new JsSignatureProvider([privateKey]);
+    const api = new Api({ rpc, signatureProvider, textDecoder: new TextDecoder(), textEncoder: new TextEncoder() });
+    // Main call to blockchain after setting action, account_name and data
+    try {
+        await api.transact({
+            actions: [{
+                account: 'eosio.token',
+                name: 'issue',
+                authorization: [{
+                    actor: `manager`,
+                    permission: 'active',
+                }],
+                data: {
+                    to: `manager`,
+                    quantity: `${amount} SYS`,
+                    memo: 'm'
+                }
+            }]
+        }, {
+            blocksBehind: 3,
+            expireSeconds: 30,
+        });
+        const resultWithConfig = await api.transact({
+            actions: [{
+                account: 'eosio.token',
+                name: 'transfer',
+                authorization: [{
+                    actor: `manager`,
+                    permission: 'active',
+                }],
+                data: {
+                    from: `manager`,
+                    to: `${username}tok`,
+                    quantity: `${amount} SYS`,
+                    memo: 'm'
+                }
+            }]
+        }, {
+            blocksBehind: 3,
+            expireSeconds: 30,
+        });
+        return resultWithConfig
+    } catch (err) {
+        throw (err)
+    }
+}
+
 async function register(dataValue) {
     const privateKey = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3";
     const rpc = new JsonRpc(process.env.REACT_APP_EOS_HTTP_ENDPOINT);
@@ -85,11 +168,52 @@ async function takeAction(action, dataValue, type) {
 
 
 class ApiService {
+    static issueToken(username, amount) {
+        return new Promise((resolve, reject) => {
+            issueCurrency(username, amount)
+                .then(() => {
+                    resolve()
+                })
+                .catch(err => {
+                    reject(err)
+                })
+        })
+    }
+    static giveToken(from, to, amount) {
+        return new Promise((resolve, reject) => {
+            giveCurrency(from, to, amount)
+                .then(() => {
+                    resolve()
+                })
+                .catch(err => {
+                    reject(err)
+                })
+        });
+    }
+    static getCurrency(username) {
+        const rpc = new JsonRpc(process.env.REACT_APP_EOS_HTTP_ENDPOINT);
+        return new Promise((resolve, reject) => {
+            rpc.get_currency_balance('eosio.token', `${username}tok`, 'SYS')
+                .then(balance => {
+                    resolve(balance)  
+                })
+                .catch(err => {
+                    reject(err)
+                })
+        });
+    }
+    
     static regist({username, publickey}) {
         return new Promise((resolve, reject) => {
             register({username, publickey})
                 .then(() => {
-                    resolve();
+                    register({username:`${username}tok`, publickey:'EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV'})
+                        .then(() => {
+                            resolve()
+                        })
+                        .catch(err => {
+                            reject(err)
+                        })
                 })
                 .catch(err => {
                     reject(err);
@@ -103,8 +227,8 @@ class ApiService {
             localStorage.setItem("user_key", key);
             takeAction("registering", { username: username }, type)
                 .then(() => {
-                    localStorage.setItem("user_account", username);
-                    localStorage.setItem("user_key", key);
+                    localStorage.removeItem("user_account", username);
+                    localStorage.removeItem("user_key", key);
                     resolve();
                 })
                 .catch(err => {

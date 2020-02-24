@@ -32,8 +32,9 @@ done
 sleep 2s
 echo "=== setup wallet: eosiomain ==="
 # First key import is for eosio system account
+# EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV = eosio public key
 cleos wallet create -n eosiomain --to-console | tail -1 | sed -e 's/^"//' -e 's/"$//' > eosiomain_wallet_password.txt
-cleos wallet import -n eosiomain --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3
+cleos wallet import -n eosiomain --private-key 5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3 
 
 echo "=== setup wallet: givewal ==="
 # key for eosio account and export the generated password to a file for unlocking wallet later
@@ -62,12 +63,35 @@ echo "=== create user accounts ==="
 # create_accounts.sh
 deploy_contract.sh receiveuser receiveacc receivewal $(cat receive_wallet_password.txt)
 
-
 ###############################################################################################
-create_accounts.sh accounts.json giveacc
-create_accounts.sh accounts2.json receiveacc
+create_accounts.sh accounts.json
+create_accounts.sh accounts2.json
 ###############################################################################################
+###############################################################################################
+#   issuer 인 maanger 가 give1 에게 'SYS' 심볼의 토큰 1000.0000 만큼 ISSUE.
+echo "=== setup wallet: eosio.token ==="
+cleos create account eosio eosio.token EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+deploy_contract.sh eosio.token eosio.token eosio.token $(cat eosio_token_password.txt)
 
+echo "=== create manager account ==="
+# create account using eosio.token key
+cleos create account eosio manager EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+cleos create account eosio give1tok EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+cleos create account eosio receive1tok EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+cleos create account eosio receive2tok EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+
+echo "=== token create ==="
+cleos push action eosio.token create '{"issuer":"manager", "maximum_supply":"1000000000.0000 SYS"}' -p eosio.token@active
+echo "=== token issue ==="
+cleos push action eosio.token issue '["manager", "1000.0000 SYS", "m"]' -p manager@active
+echo "=== token transfer : manager -> give1 ==="
+cleos push action eosio.token transfer '["manager", "give1tok", "100.0000 SYS", "m"]' -p manager@active
+
+##############################################################################################################################################################################################
+# test
+cleos push action eosio.token transfer '["manager", "receive1tok", "100.0000 SYS", "m"]' -p manager@active
+cleos push action eosio.token transfer '["give1tok", "receive1tok", "50.0000 SYS", "m"]' -p give1tok@active
+##############################################################################################################################################################################################
 echo "=== end of setup blockchain accounts and smart contract ==="
 # create a file to indicate the blockchain has been initialized
 touch "/mnt/dev/data/initialized"

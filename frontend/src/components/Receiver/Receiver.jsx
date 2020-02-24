@@ -1,6 +1,41 @@
 import React, {Component} from 'react'
 import ApiService from '../services'
 
+class ReceiveCurrency extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            currency: '',
+        }
+    }
+
+    componentDidMount() {
+        ApiService.getCurrency(localStorage.getItem("user_account"))
+            .then(result => {
+                if (result.length === 0) {
+                    this.setState({
+                        currency:'0.0000 SYS'
+                    })
+                } else {
+                    this.setState({
+                        currency:result
+                    })
+                }
+            })
+            .catch(err => {
+                alert(err)
+            })
+    }
+
+    render() {
+        this.componentDidMount()
+        return(
+            <div>
+                현재 토큰 보유 : {this.state.currency}
+            </div>
+        )
+    }
+}
 class Receiver extends Component {
     constructor(props) {
         super(props)
@@ -66,6 +101,7 @@ class Receiver extends Component {
                 <div>
                     my current current: {this.state.current_amount} $
                 </div>
+                <ReceiveCurrency />
                 <br/>
                 <label>Edit My target current.</label>
                 <form onSubmit={this.submitHandler}>
